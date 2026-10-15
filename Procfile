@@ -1,1 +1,1 @@
-web: python hosting.py --no-browser
+web: python crm_backend/server.py

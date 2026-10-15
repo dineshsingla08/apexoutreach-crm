@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python hosting.py --no-browser"
+    startCommand: "python crm_backend/server.py"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
