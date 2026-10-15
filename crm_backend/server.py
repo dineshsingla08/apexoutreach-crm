@@ -3594,6 +3594,363 @@ def api_ai_transform_text():
     return jsonify(res)
 
 # =========================================================================
+# COMMERCIAL AUTHENTICATION & INR PRICING SUITE
+# =========================================================================
+CRM_USERS_FILE = os.path.join(SCRAPPING_DIR, "crm_users.json")
+
+def load_users():
+    if os.path.exists(CRM_USERS_FILE):
+        try:
+            with open(CRM_USERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    default_users = [
+        {
+            "id": "user_demo",
+            "name": "Ishant Singla",
+            "agency_name": "Apex Growth Agency",
+            "email": "demo@apexoutreach.io",
+            "password": "demo",
+            "plan": "pro",
+            "plan_name": "Agency Pro",
+            "plan_amount_inr": 7999,
+            "billing_cycle": "monthly",
+            "leads_quota": 10000,
+            "leads_used": 1580,
+            "created_at": "2026-01-01T00:00:00Z",
+            "avatar": "IS",
+            "is_active": True
+        },
+        {
+            "id": "user_founder",
+            "name": "Dinesh Singla",
+            "agency_name": "ApexOutreach Global",
+            "email": "dinesh@apexoutreach.io",
+            "password": "admin",
+            "plan": "scale",
+            "plan_name": "Agency Scale",
+            "plan_amount_inr": 19999,
+            "billing_cycle": "yearly",
+            "leads_quota": 50000,
+            "leads_used": 6240,
+            "created_at": "2026-01-01T00:00:00Z",
+            "avatar": "DS",
+            "is_active": True
+        }
+    ]
+    save_users(default_users)
+    return default_users
+
+def save_users(users):
+    try:
+        with open(CRM_USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(users, f, indent=2)
+    except Exception as e:
+        print(f"Error saving crm_users: {e}")
+
+PRICING_PLANS_INR = [
+    {
+        "id": "starter",
+        "name": "Starter Agency",
+        "tag": "For Solo Founders & Freelance Lead Gen",
+        "priceMonthly": 2999,
+        "priceYearly": 2399,
+        "currency": "₹",
+        "leadsMonthly": "1,500 Targeted Leads / Mo",
+        "senders": "1 Dedicated Sender Account",
+        "badge": "STARTER",
+        "popular": False,
+        "features": [
+            "1,500 Verified Leads / Month",
+            "Fast Maps & Directory Scraper",
+            "1 Connected Sender (Gmail / SMTP)",
+            "Direct 1-Click WhatsApp Targeting",
+            "Standard Clean Deliverability Engine",
+            "CSV & Excel Data Export",
+            "Email & Community Support"
+        ],
+        "buttonText": "Select Starter"
+    },
+    {
+        "id": "pro",
+        "name": "Agency Pro",
+        "tag": "Most Popular for Growing Agencies & B2B Teams",
+        "priceMonthly": 7999,
+        "priceYearly": 6399,
+        "currency": "₹",
+        "leadsMonthly": "10,000 Targeted Leads / Mo",
+        "senders": "5 Dedicated Sender Accounts",
+        "badge": "🔥 MOST POPULAR - BEST VALUE",
+        "popular": True,
+        "features": [
+            "10,000 Verified Leads / Month",
+            "Dual-Engine Deep Web + Overpass Scraper",
+            "5 Sender Accounts with Smart Auto-Rotation",
+            "Omnichannel WhatsApp Hub with Custom Templates",
+            "4 AI Outreach Copy Polishers",
+            "Micro-Batch SMTP Anti-Spam Queue",
+            "SQLite WAL 5M Lead Engine (< 1ms searches)",
+            "Priority WhatsApp & Live Support"
+        ],
+        "buttonText": "Upgrade to Agency Pro"
+    },
+    {
+        "id": "scale",
+        "name": "Agency Scale & Enterprise",
+        "tag": "For High-Volume Outreach Teams & Large Agencies",
+        "priceMonthly": 19999,
+        "priceYearly": 15999,
+        "currency": "₹",
+        "leadsMonthly": "50,000 Targeted Leads / Mo",
+        "senders": "Unlimited Sender Accounts",
+        "badge": "FOR SCALE-UPS",
+        "popular": False,
+        "features": [
+            "50,000 Verified Leads / Month",
+            "Unlimited Sender Accounts with Warmup Routing",
+            "Custom Scraper Directives & Overnight Crawlers",
+            "Dedicated Agency Sub-Accounts & White-Labeling",
+            "High-Speed Micro-Batch Processing",
+            "Custom CRM Webhooks & Zapier Sync",
+            "Dedicated 24/7 Account Manager on WhatsApp",
+            "Custom Outreach Script Consulting"
+        ],
+        "buttonText": "Scale My Agency"
+    }
+]
+
+PROMO_COUPONS = {
+    "LAUNCH50": {"discount": 50, "description": "Launch Offer: Flat 50% Off First 3 Months"},
+    "AGENCY20": {"discount": 20, "description": "Agency Special: Flat 20% Off Any Plan"},
+    "STARTUP30": {"discount": 30, "description": "Startup Boost: Flat 30% Off Annual Plans"},
+    "APEX100": {"discount": 100, "description": "VIP Agency Partner: 100% Free Lifetime Beta"}
+}
+
+@app.route("/api/auth/me", methods=["GET"])
+def api_auth_me():
+    token = request.headers.get("Authorization", "")
+    users = load_users()
+    if token.startswith("Bearer "):
+        token_val = token[7:]
+        for u in users:
+            if f"token_{u.get('id')}" in token_val:
+                return jsonify({"authenticated": True, "user": u})
+    demo_user = next((u for u in users if u.get("id") == "user_demo"), users[0] if users else None)
+    return jsonify({"authenticated": bool(demo_user), "user": demo_user})
+
+@app.route("/api/auth/login", methods=["POST"])
+def api_auth_login():
+    data = request.json or {}
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    
+    users = load_users()
+    user = next((u for u in users if u.get("email", "").strip().lower() == email), None)
+    
+    if not user:
+        user_name = email.split("@")[0].replace(".", " ").title() if "@" in email else "Agency Member"
+        user = {
+            "id": f"user_{int(time.time())}",
+            "name": user_name,
+            "agency_name": f"{user_name}'s Agency",
+            "email": email or "user@apexoutreach.io",
+            "password": password or "apex2026",
+            "plan": "starter",
+            "plan_name": "Starter Agency",
+            "plan_amount_inr": 2999,
+            "billing_cycle": "monthly",
+            "leads_quota": 1500,
+            "leads_used": 0,
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "avatar": "".join([part[0].upper() for part in user_name.split()[:2]]) or "AP",
+            "is_active": True
+        }
+        users.append(user)
+        save_users(users)
+    
+    token = f"token_{user.get('id')}_{int(time.time())}"
+    return jsonify({
+        "success": True,
+        "message": f"Welcome back, {user.get('name')}!",
+        "token": token,
+        "user": user
+    })
+
+@app.route("/api/auth/register", methods=["POST"])
+def api_auth_register():
+    data = request.json or {}
+    name = data.get("name", "").strip() or "Agency Partner"
+    agency_name = data.get("agency_name", "").strip() or f"{name} Outreach"
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    plan_id = data.get("plan_id", "pro")
+    
+    if not email:
+        return jsonify({"success": False, "error": "Email address is required"}), 400
+        
+    users = load_users()
+    existing = next((u for u in users if u.get("email", "").strip().lower() == email), None)
+    if existing:
+        token = f"token_{existing.get('id')}_{int(time.time())}"
+        return jsonify({
+            "success": True,
+            "message": "Account already registered. Logged in successfully!",
+            "token": token,
+            "user": existing
+        })
+        
+    plan_obj = next((p for p in PRICING_PLANS_INR if p["id"] == plan_id), PRICING_PLANS_INR[1])
+    quota_map = {"starter": 1500, "pro": 10000, "scale": 50000}
+    
+    user = {
+        "id": f"user_{int(time.time())}",
+        "name": name,
+        "agency_name": agency_name,
+        "email": email,
+        "password": password or "apex2026",
+        "plan": plan_id,
+        "plan_name": plan_obj["name"],
+        "plan_amount_inr": plan_obj["priceMonthly"],
+        "billing_cycle": "monthly",
+        "leads_quota": quota_map.get(plan_id, 10000),
+        "leads_used": 0,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "avatar": "".join([p[0].upper() for p in name.split()[:2]]) or "AP",
+        "is_active": True
+    }
+    users.append(user)
+    save_users(users)
+    
+    token = f"token_{user['id']}_{int(time.time())}"
+    return jsonify({
+        "success": True,
+        "message": f"Agency workspace created for {agency_name}!",
+        "token": token,
+        "user": user
+    })
+
+@app.route("/api/auth/demo", methods=["POST"])
+def api_auth_demo():
+    users = load_users()
+    demo_user = next((u for u in users if u.get("id") == "user_demo"), users[0] if users else None)
+    token = f"token_{demo_user.get('id')}_{int(time.time())}"
+    return jsonify({
+        "success": True,
+        "message": "Instant Demo Access Activated! Enjoy full Agency Pro features.",
+        "token": token,
+        "user": demo_user
+    })
+
+@app.route("/api/pricing/plans", methods=["GET"])
+def api_pricing_plans():
+    return jsonify({
+        "currency": "INR",
+        "symbol": "₹",
+        "annual_discount_percent": 20,
+        "annual_discount_tag": "Save 20% + 2 Months Free",
+        "plans": PRICING_PLANS_INR,
+        "coupons": [
+            {"code": "LAUNCH50", "discount": 50, "desc": "Flat 50% Off First 3 Months"},
+            {"code": "AGENCY20", "discount": 20, "desc": "Flat 20% Off Any Plan"}
+        ],
+        "payment_methods": [
+            {"id": "upi", "name": "UPI (GPay, PhonePe, Paytm, BHIM)", "instant": True, "popular": True},
+            {"id": "card", "name": "Credit / Debit Cards (RuPay, Visa, Mastercard)", "instant": True},
+            {"id": "netbanking", "name": "NetBanking (HDFC, ICICI, SBI, Axis)", "instant": True},
+            {"id": "whatsapp_sales", "name": "Direct WhatsApp Sales & GST Invoice", "instant": True}
+        ]
+    })
+
+@app.route("/api/pricing/apply-coupon", methods=["POST"])
+def api_pricing_apply_coupon():
+    data = request.json or {}
+    code = data.get("code", "").strip().upper()
+    plan_id = data.get("plan_id", "pro")
+    billing_cycle = data.get("billing_cycle", "monthly")
+    
+    plan = next((p for p in PRICING_PLANS_INR if p["id"] == plan_id), PRICING_PLANS_INR[1])
+    base_price = plan["priceYearly"] if billing_cycle == "yearly" else plan["priceMonthly"]
+    
+    if code in PROMO_COUPONS:
+        coupon = PROMO_COUPONS[code]
+        discount_percent = coupon["discount"]
+        discount_amount = int(round(base_price * (discount_percent / 100.0)))
+        final_price = max(0, base_price - discount_amount)
+        return jsonify({
+            "valid": True,
+            "code": code,
+            "discount_percent": discount_percent,
+            "discount_amount": discount_amount,
+            "original_price": base_price,
+            "final_price": final_price,
+            "description": coupon["description"],
+            "message": f"🎉 Coupon '{code}' applied! You save ₹{discount_amount:,}."
+        })
+    else:
+        return jsonify({
+            "valid": False,
+            "message": f"Coupon code '{code}' is invalid or expired. Try 'LAUNCH50' or 'AGENCY20'."
+        }), 400
+
+@app.route("/api/pricing/subscribe", methods=["POST"])
+def api_pricing_subscribe():
+    data = request.json or {}
+    plan_id = data.get("plan_id", "pro")
+    billing_cycle = data.get("billing_cycle", "monthly")
+    payment_method = data.get("payment_method", "upi")
+    coupon_code = data.get("coupon_code", "").strip().upper()
+    user_id = data.get("user_id")
+    
+    plan = next((p for p in PRICING_PLANS_INR if p["id"] == plan_id), PRICING_PLANS_INR[1])
+    base_price = plan["priceYearly"] if billing_cycle == "yearly" else plan["priceMonthly"]
+    
+    discount_amount = 0
+    if coupon_code and coupon_code in PROMO_COUPONS:
+        discount_amount = int(round(base_price * (PROMO_COUPONS[coupon_code]["discount"] / 100.0)))
+        
+    final_amount = max(0, base_price - discount_amount)
+    order_id = f"APEX-INR-{random.randint(10000, 99999)}"
+    
+    users = load_users()
+    user = next((u for u in users if u.get("id") == user_id), None)
+    if not user and users:
+        user = users[0]
+        
+    if user:
+        quota_map = {"starter": 1500, "pro": 10000, "scale": 50000}
+        user["plan"] = plan_id
+        user["plan_name"] = plan["name"]
+        user["plan_amount_inr"] = final_amount
+        user["billing_cycle"] = billing_cycle
+        user["leads_quota"] = quota_map.get(plan_id, 10000)
+        user["subscription_active"] = True
+        user["subscribed_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        user["order_id"] = order_id
+        save_users(users)
+        
+    whatsapp_text = urllib.parse.quote(
+        f"Hi ApexOutreach Sales Team! I just initiated an upgrade to the *{plan['name']}* ({billing_cycle.upper()}) plan for *₹{final_amount:,}*.\n"
+        f"• Order ID: {order_id}\n"
+        f"• Email: {user.get('email') if user else 'demo@apexoutreach.io'}\n"
+        f"• Agency: {user.get('agency_name') if user else 'Apex Growth Agency'}\n"
+        f"Please share the direct UPI QR / GST invoice to confirm."
+    )
+    whatsapp_url = f"https://wa.me/917015147209?text={whatsapp_text}"
+    
+    return jsonify({
+        "success": True,
+        "order_id": order_id,
+        "plan": plan,
+        "final_amount_inr": final_amount,
+        "billing_cycle": billing_cycle,
+        "payment_method": payment_method,
+        "whatsapp_url": whatsapp_url,
+        "user": user,
+        "message": f"🎉 Plan upgraded to {plan['name']}! Your agency quota is now {plan['leadsMonthly']}."
+    })
+
+# =========================================================================
 # PRODUCTION HOSTING & STATIC FRONTEND SERVING
 # =========================================================================
 @app.route("/", defaults={"path": ""})

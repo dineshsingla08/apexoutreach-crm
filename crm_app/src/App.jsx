@@ -8,7 +8,7 @@ import {
   HeartHandshake, FileDown, LayoutGrid, List, Smartphone, Monitor, ChevronDown, FileText,
   Compass, Globe, Calendar, CalendarPlus, CheckSquare, CloudLightning,
   Bot, Flame, CheckCheck, ListTodo, Workflow, Layers,
-  HelpCircle, Server, Activity
+  HelpCircle, Server, Activity, CreditCard, Lock, LogOut, User, Tag, Shield
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -177,9 +177,124 @@ Best regards,
   }
 };
 
+const DEFAULT_INR_PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter Agency',
+    tag: 'For Solo Founders & Freelance Lead Gen',
+    priceMonthly: 2999,
+    priceYearly: 2399,
+    currency: '₹',
+    leadsMonthly: '1,500 Targeted Leads / Mo',
+    senders: '1 Dedicated Sender Account',
+    badge: 'STARTER',
+    popular: false,
+    features: [
+      '1,500 Verified Leads / Month',
+      'Fast Maps & Directory Scraper',
+      '1 Connected Sender (Gmail / SMTP)',
+      'Direct 1-Click WhatsApp Targeting',
+      'Standard Clean Deliverability Engine',
+      'CSV & Excel Data Export',
+      'Email & Community Support'
+    ],
+    buttonText: 'Select Starter'
+  },
+  {
+    id: 'pro',
+    name: 'Agency Pro',
+    tag: 'Most Popular for Growing Agencies & B2B Teams',
+    priceMonthly: 7999,
+    priceYearly: 6399,
+    currency: '₹',
+    leadsMonthly: '10,000 Targeted Leads / Mo',
+    senders: '5 Dedicated Sender Accounts',
+    badge: '🔥 MOST POPULAR - BEST VALUE',
+    popular: true,
+    features: [
+      '10,000 Verified Leads / Month',
+      'Dual-Engine Deep Web + Overpass Scraper',
+      '5 Sender Accounts with Smart Auto-Rotation',
+      'Omnichannel WhatsApp Hub with Custom Templates',
+      '4 AI Outreach Copy Polishers',
+      'Micro-Batch SMTP Anti-Spam Queue',
+      'SQLite WAL 5M Lead Engine (< 1ms searches)',
+      'Priority WhatsApp & Live Support'
+    ],
+    buttonText: 'Upgrade to Agency Pro'
+  },
+  {
+    id: 'scale',
+    name: 'Agency Scale & Enterprise',
+    tag: 'For High-Volume Outreach Teams & Large Agencies',
+    priceMonthly: 19999,
+    priceYearly: 15999,
+    currency: '₹',
+    leadsMonthly: '50,000 Targeted Leads / Mo',
+    senders: 'Unlimited Sender Accounts',
+    badge: 'FOR SCALE-UPS',
+    popular: false,
+    features: [
+      '50,000 Verified Leads / Month',
+      'Unlimited Sender Accounts with Warmup Routing',
+      'Custom Scraper Directives & Overnight Crawlers',
+      'Dedicated Agency Sub-Accounts & White-Labeling',
+      'High-Speed Micro-Batch Processing',
+      'Custom CRM Webhooks & Zapier Sync',
+      'Dedicated 24/7 Account Manager on WhatsApp',
+      'Custom Outreach Script Consulting'
+    ],
+    buttonText: 'Scale My Agency'
+  }
+];
+
 export default function App() {
   // Navigation: 'crm', 'scraper', 'campaign', 'whatsapp', 'logs', 'settings'
   const [activeTab, setActiveTab] = useState('crm');
+
+  // Commercial INR Pricing & Authentication System State
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState('demo'); // 'demo' | 'login' | 'register'
+  const [pricingCycle, setPricingCycle] = useState('yearly'); // 'monthly' | 'yearly'
+  const [pricingPlansData, setPricingPlansData] = useState(DEFAULT_INR_PLANS);
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMsg, setCouponMsg] = useState(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isUpgradingPlan, setIsUpgradingPlan] = useState(false);
+
+  // User Auth State
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('apex_user');
+      return stored ? JSON.parse(stored) : {
+        id: 'user_demo',
+        name: 'Ishant Singla',
+        agency_name: 'Apex Growth Agency',
+        email: 'demo@apexoutreach.io',
+        plan: 'pro',
+        plan_name: 'Agency Pro',
+        plan_amount_inr: 7999,
+        billing_cycle: 'monthly',
+        leads_quota: 10000,
+        leads_used: 1580,
+        avatar: 'IS'
+      };
+    } catch {
+      return null;
+    }
+  });
+
+  // Auth Form State
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authAgencyName, setAuthAgencyName] = useState('');
+  const [authPlanChoice, setAuthPlanChoice] = useState('pro');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   // CRM View Mode: 'table' or 'kanban'
   const [crmView, setCrmView] = useState('table');
@@ -377,7 +492,203 @@ export default function App() {
     fetchCalendarEvents();
     fetchTasks();
     fetchWaTemplates();
+    fetchPricingCatalog();
+    checkAuthSession();
   }, []);
+
+  const fetchPricingCatalog = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/pricing/plans`);
+      const data = await res.json();
+      if (data && data.plans && data.plans.length > 0) {
+        setPricingPlansData(data.plans);
+      }
+    } catch (e) {
+      console.error('Error fetching pricing catalog:', e);
+    }
+  };
+
+  const checkAuthSession = async () => {
+    try {
+      const token = localStorage.getItem('apex_token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'omit', headers });
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        setCurrentUser(data.user);
+        try { localStorage.setItem('apex_user', JSON.stringify(data.user)); } catch {}
+      }
+    } catch (e) {
+      console.error('Error checking auth session:', e);
+    }
+  };
+
+  const handleAuthLogin = async (e) => {
+    if (e) e.preventDefault();
+    if (!authEmail) {
+      setAuthError('Please enter your email address');
+      return;
+    }
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: authPassword })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setCurrentUser(data.user);
+        try {
+          localStorage.setItem('apex_user', JSON.stringify(data.user));
+          if (data.token) localStorage.setItem('apex_token', data.token);
+        } catch {}
+        setShowAuthModal(false);
+        showToast(data.message || 'Logged in successfully!', 'success');
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+      } else {
+        setAuthError(data.error || 'Authentication failed');
+      }
+    } catch (err) {
+      setAuthError('Network error connecting to auth server');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthRegister = async (e) => {
+    if (e) e.preventDefault();
+    if (!authEmail) {
+      setAuthError('Please enter an email address');
+      return;
+    }
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: authName,
+          agency_name: authAgencyName,
+          email: authEmail,
+          password: authPassword,
+          plan_id: authPlanChoice
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setCurrentUser(data.user);
+        try {
+          localStorage.setItem('apex_user', JSON.stringify(data.user));
+          if (data.token) localStorage.setItem('apex_token', data.token);
+        } catch {}
+        setShowAuthModal(false);
+        showToast(data.message || 'Agency account created!', 'success');
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.7 } });
+      } else {
+        setAuthError(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      setAuthError('Network error during registration');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAuthDemoLogin = async () => {
+    setAuthLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/demo`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setCurrentUser(data.user);
+        try {
+          localStorage.setItem('apex_user', JSON.stringify(data.user));
+          if (data.token) localStorage.setItem('apex_token', data.token);
+        } catch {}
+        setShowAuthModal(false);
+        showToast('🚀 Instant Demo Pro Workspace Activated!', 'success');
+        confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+      }
+    } catch (err) {
+      showToast('Error activating demo session', 'error');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('apex_user');
+      localStorage.removeItem('apex_token');
+    } catch {}
+    setShowUserDropdown(false);
+    showToast('Signed out of agency workspace', 'info');
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) return;
+    setCouponLoading(true);
+    setCouponMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/pricing/apply-coupon`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCodeInput.trim().toUpperCase(),
+          plan_id: 'pro',
+          billing_cycle: pricingCycle
+        })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon(data);
+        setCouponMsg({ type: 'success', text: data.message });
+        confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
+      } else {
+        setAppliedCoupon(null);
+        setCouponMsg({ type: 'error', text: data.message || 'Invalid coupon code' });
+      }
+    } catch (err) {
+      setCouponMsg({ type: 'error', text: 'Error applying coupon' });
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleSelectPlan = async (plan) => {
+    setIsUpgradingPlan(true);
+    try {
+      const res = await fetch(`${API_BASE}/pricing/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan_id: plan.id,
+          billing_cycle: pricingCycle,
+          coupon_code: appliedCoupon?.code || '',
+          user_id: currentUser?.id || 'user_demo',
+          payment_method: 'upi'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.user) {
+          setCurrentUser(data.user);
+          try { localStorage.setItem('apex_user', JSON.stringify(data.user)); } catch {}
+        }
+        showToast(data.message || `Upgraded to ${plan.name}!`, 'success');
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
+        setShowPricingModal(false);
+      }
+    } catch (err) {
+      showToast('Error upgrading plan', 'error');
+    } finally {
+      setIsUpgradingPlan(false);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -2269,6 +2580,136 @@ export default function App() {
               </div>
             );
           })()}
+
+          <div style={{ width: 1, height: 26, background: '#cbd5e1' }} />
+
+          {/* Commercial Pricing Modal Trigger Button */}
+          <button
+            onClick={() => setShowPricingModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 13px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 800,
+              color: '#ffffff',
+              background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)',
+              transition: 'all 0.15s ease'
+            }}
+            title="View Agency Pricing & Subscription Plans in Indian Rupees (₹)"
+          >
+            <Zap size={13} />
+            <span>⚡ Plans & Pricing (₹)</span>
+            <span style={{
+              fontSize: 9,
+              background: 'rgba(255, 255, 255, 0.25)',
+              padding: '1px 5px',
+              borderRadius: 4,
+              fontWeight: 800
+            }}>
+              20% OFF
+            </span>
+          </button>
+
+          {/* User Profile & Agency Account Management */}
+          {currentUser ? (
+            <div style={{ position: 'relative' }}>
+              <div
+                className="navbar-user-widget"
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                title="Manage Agency Workspace & Subscription"
+              >
+                <div className="navbar-user-avatar">
+                  {currentUser.avatar || 'IS'}
+                </div>
+                <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>
+                      {currentUser.name || 'Agency Admin'}
+                    </span>
+                    <span className="navbar-plan-pill">
+                      {currentUser.plan === 'scale' ? '👑 SCALE' : currentUser.plan === 'pro' ? '⭐ PRO' : 'STARTER'}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: 9, color: '#64748b', fontWeight: 600 }}>
+                    {currentUser.agency_name || 'Apex Outreach'}
+                  </span>
+                </div>
+                <ChevronDown size={12} color="#64748b" />
+              </div>
+
+              {showUserDropdown && (
+                <div className="user-dropdown-menu">
+                  <div style={{ padding: '6px 8px 10px', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>{currentUser.agency_name}</div>
+                    <div style={{ fontSize: 10, color: '#64748b' }}>{currentUser.email}</div>
+                    <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 10, background: '#f8fafc', padding: '4px 6px', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#475569', fontWeight: 600 }}>Lead Quota:</span>
+                      <strong style={{ color: '#4f46e5' }}>{(currentUser.leads_used || 0).toLocaleString()} / {(currentUser.leads_quota || 10000).toLocaleString()}</strong>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => { setShowPricingModal(true); setShowUserDropdown(false); }}
+                    className="user-dropdown-item"
+                    style={{ color: '#4f46e5', fontWeight: 700 }}
+                  >
+                    <Zap size={13} color="#4f46e5" />
+                    Upgrade Tier (₹ INR)
+                  </button>
+
+                  <button
+                    onClick={() => { setActiveTab('settings'); setShowUserDropdown(false); }}
+                    className="user-dropdown-item"
+                  >
+                    <Settings size={13} color="#64748b" />
+                    Sender Settings & Relays
+                  </button>
+
+                  <button
+                    onClick={() => { setShowAuthModal(true); setAuthModalTab('demo'); setShowUserDropdown(false); }}
+                    className="user-dropdown-item"
+                  >
+                    <User size={13} color="#64748b" />
+                    Switch / Demo Account
+                  </button>
+
+                  <div style={{ height: 1, background: '#f1f5f9', margin: '2px 0' }} />
+
+                  <button
+                    onClick={handleLogout}
+                    className="user-dropdown-item"
+                    style={{ color: '#dc2626' }}
+                  >
+                    <LogOut size={13} color="#dc2626" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button
+                onClick={() => { setShowAuthModal(true); setAuthModalTab('login'); }}
+                className="btn-secondary"
+                style={{ fontSize: 11, padding: '5px 10px', fontWeight: 700 }}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => { setShowAuthModal(true); setAuthModalTab('register'); }}
+                className="btn-primary"
+                style={{ fontSize: 11, padding: '5px 12px', fontWeight: 700 }}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -6176,6 +6617,492 @@ export default function App() {
                 >
                   Close
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          COMMERCIAL PRICING MODAL IN INDIAN RUPEES (₹)
+         ========================================================================= */}
+      {showPricingModal && (
+        <div className="pricing-modal-backdrop" onClick={() => setShowPricingModal(false)}>
+          <div className="pricing-modal-container" onClick={(e) => e.stopPropagation()}>
+            {/* Header Banner */}
+            <div className="pricing-header-banner">
+              <button
+                type="button"
+                onClick={() => setShowPricingModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 20,
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  border: 'none',
+                  color: '#ffffff',
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                  fontWeight: 700
+                }}
+              >
+                ✕
+              </button>
+
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255, 255, 255, 0.1)', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: '#38bdf8', marginBottom: 10 }}>
+                <Sparkles size={13} />
+                TRANSPARENT AGENCY PRICING IN INDIAN RUPEES (₹)
+              </div>
+
+              <h2 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.8px', margin: '0 0 8px', color: '#ffffff' }}>
+                Predictable Growth for Outreach & Lead Gen Agencies
+              </h2>
+              <p style={{ fontSize: 13, color: '#cbd5e1', maxWidth: 640, margin: '0 auto', lineHeight: 1.5 }}>
+                Supercharge client acquisition with live Google Maps scraping, 5M lead index, micro-batch SMTP deliverability, and 1-click WhatsApp outreach.
+              </p>
+
+              {/* Billing Cycle Toggle Switch */}
+              <div className="pricing-cycle-toggle">
+                <button
+                  type="button"
+                  className={`pricing-cycle-btn ${pricingCycle === 'monthly' ? 'active' : ''}`}
+                  onClick={() => setPricingCycle('monthly')}
+                >
+                  Monthly Billing
+                </button>
+                <button
+                  type="button"
+                  className={`pricing-cycle-btn ${pricingCycle === 'yearly' ? 'active' : ''}`}
+                  onClick={() => setPricingCycle('yearly')}
+                >
+                  Annual Billing
+                  <span className="pricing-save-pill">
+                    <Sparkles size={10} /> SAVE 20% + 2 MO FREE
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 3-Column Commercial Plan Cards Grid */}
+            <div className="pricing-cards-grid">
+              {pricingPlansData.map((plan) => {
+                const basePrice = pricingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+                const discountAmount = appliedCoupon ? Math.round(basePrice * (appliedCoupon.discount_percent / 100)) : 0;
+                const finalPrice = Math.max(0, basePrice - discountAmount);
+                const isCurrentPlan = currentUser?.plan === plan.id;
+
+                return (
+                  <div key={plan.id} className={`pricing-card ${plan.popular ? 'popular' : ''}`}>
+                    {plan.popular && (
+                      <div className="popular-badge-ribbon">
+                        {plan.badge || '🔥 MOST POPULAR - BEST VALUE'}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <h3 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                        {plan.name}
+                      </h3>
+                      {isCurrentPlan && (
+                        <span style={{ fontSize: 10, background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: 12, fontWeight: 800 }}>
+                          ACTIVE PLAN
+                        </span>
+                      )}
+                    </div>
+
+                    <p style={{ fontSize: 11, color: '#64748b', margin: '4px 0 12px', minHeight: 32 }}>
+                      {plan.tag}
+                    </p>
+
+                    {/* Price Display */}
+                    <div className="pricing-card-price">
+                      <span className="pricing-currency">₹</span>
+                      <span className="pricing-amount">{finalPrice.toLocaleString('en-IN')}</span>
+                      <span className="pricing-period">/ mo</span>
+
+                      {(appliedCoupon || pricingCycle === 'yearly') && (
+                        <span className="pricing-original-strike">
+                          ₹{(pricingCycle === 'yearly' ? plan.priceMonthly : basePrice).toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 14 }}>
+                      {pricingCycle === 'yearly'
+                        ? `Billed annually at ₹${(finalPrice * 12).toLocaleString('en-IN')}/yr`
+                        : 'Billed monthly. Cancel or switch anytime.'}
+                    </div>
+
+                    {/* Quota Highlights */}
+                    <div style={{ background: plan.popular ? '#eef2ff' : '#f1f5f9', padding: '8px 12px', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Zap size={13} color="#4f46e5" />
+                        <span>{plan.leadsMonthly}</span>
+                      </div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <Mail size={13} color="#059669" />
+                        <span>{plan.senders}</span>
+                      </div>
+                    </div>
+
+                    {/* Features Checklist */}
+                    <ul className="pricing-features-list">
+                      {plan.features.map((feat, idx) => (
+                        <li key={idx} className="pricing-feature-item">
+                          <CheckCircle2 size={15} color="#059669" style={{ flexShrink: 0, marginTop: 1 }} />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Action Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectPlan(plan)}
+                      disabled={isUpgradingPlan}
+                      className={`pricing-btn-action ${plan.popular ? 'pricing-btn-primary' : 'pricing-btn-secondary'}`}
+                    >
+                      {isCurrentPlan ? (
+                        <>
+                          <Check size={14} /> Active Workspace Plan
+                        </>
+                      ) : (
+                        <>
+                          <span>{plan.buttonText || `Choose ${plan.name}`}</span>
+                          <ArrowRight size={14} />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer Bar with Coupon Box & Payment Ecosystem */}
+            <div className="pricing-footer-bar">
+              {/* Promo Coupon Box */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="pricing-coupon-box">
+                  <Tag size={13} color="#4f46e5" />
+                  <input
+                    type="text"
+                    value={couponCodeInput}
+                    onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                    placeholder="COUPON (e.g. LAUNCH50)"
+                    className="pricing-coupon-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponCodeInput.trim()}
+                    className="btn-primary"
+                    style={{ fontSize: 10, padding: '3px 8px' }}
+                  >
+                    {couponLoading ? 'Applying...' : 'Apply'}
+                  </button>
+                </div>
+
+                {couponMsg && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: couponMsg.type === 'success' ? '#047857' : '#b91c1c' }}>
+                    {couponMsg.text}
+                  </span>
+                )}
+
+                {appliedCoupon && (
+                  <button
+                    type="button"
+                    onClick={() => { setAppliedCoupon(null); setCouponMsg(null); setCouponCodeInput(''); }}
+                    style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Remove Code
+                  </button>
+                )}
+              </div>
+
+              {/* Indian Payment Ecosystem Badges & WhatsApp Sales Bridge */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div className="pricing-payment-badges">
+                  <span>Accepted in India:</span>
+                  <span className="upi-pill-badge">UPI (GPay / PhonePe / Paytm / BHIM)</span>
+                  <span style={{ color: '#0f172a', fontWeight: 700 }}>RuPay • NetBanking • Cards</span>
+                </div>
+
+                <a
+                  href={`https://wa.me/917015147209?text=${encodeURIComponent('Hi ApexOutreach Sales Team! I am interested in subscribing to ApexOutreach Agency CRM. Please share the direct UPI QR / GST Invoice details.')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                  style={{ fontSize: 11, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, color: '#047857', borderColor: '#a7f3d0', background: '#ecfdf5', textDecoration: 'none' }}
+                >
+                  <MessageSquare size={13} color="#059669" />
+                  <span>Pay via WhatsApp / GST Invoice</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          AUTHENTICATION & AGENCY WORKSPACE ONBOARDING MODAL
+         ========================================================================= */}
+      {showAuthModal && (
+        <div className="pricing-modal-backdrop" onClick={() => setShowAuthModal(false)}>
+          <div className="auth-modal-dialog" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="auth-header">
+              <button
+                type="button"
+                onClick={() => setShowAuthModal(false)}
+                style={{
+                  position: 'absolute',
+                  top: 14,
+                  right: 16,
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  border: 'none',
+                  color: '#ffffff',
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 14,
+                  fontWeight: 700
+                }}
+              >
+                ✕
+              </button>
+
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.4)' }}>
+                <Sparkles size={18} color="#fff" />
+              </div>
+
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', margin: '0 0 4px' }}>
+                ApexOutreach Studio
+              </h2>
+              <p style={{ fontSize: 12, color: '#cbd5e1', margin: 0 }}>
+                Agency-Grade Outreach & Scraper Command Center
+              </p>
+            </div>
+
+            {/* Tab Switcher */}
+            <div className="auth-tabs-row">
+              <button
+                type="button"
+                className={`auth-tab-btn ${authModalTab === 'demo' ? 'active' : ''}`}
+                onClick={() => { setAuthModalTab('demo'); setAuthError(''); }}
+              >
+                ⚡ 1-Click Demo
+              </button>
+              <button
+                type="button"
+                className={`auth-tab-btn ${authModalTab === 'login' ? 'active' : ''}`}
+                onClick={() => { setAuthModalTab('login'); setAuthError(''); }}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                className={`auth-tab-btn ${authModalTab === 'register' ? 'active' : ''}`}
+                onClick={() => { setAuthModalTab('register'); setAuthError(''); }}
+              >
+                Create Agency Account
+              </button>
+            </div>
+
+            {/* Form Content */}
+            <div className="auth-form-container">
+              {authError && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '8px 12px', borderRadius: 8, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <AlertCircle size={14} color="#dc2626" />
+                  <span>{authError}</span>
+                </div>
+              )}
+
+              {/* TAB 1: 1-Click Demo Access */}
+              {authModalTab === 'demo' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <strong style={{ fontSize: 13, color: '#0f172a' }}>Pre-Configured Agency Workspace</strong>
+                      <span style={{ fontSize: 10, background: '#eff6ff', color: '#4f46e5', fontWeight: 800, padding: '2px 8px', borderRadius: 10 }}>
+                        ⭐ PRO TIER ACTIVE
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 11, color: '#475569', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                      <div>Agency: <strong>Apex Growth Agency</strong></div>
+                      <div>Contact: <strong>Ishant Singla</strong> (demo@apexoutreach.io)</div>
+                      <div>Quota: <strong>10,000 Verified Leads / Month</strong> (8,420 remaining)</div>
+                      <div>Features: Dual-Engine Scraper • Micro-Batch SMTP • WhatsApp Hub</div>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.4 }}>
+                    Experience the complete commercial platform without filling long signup forms. You can switch to a custom account anytime.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleAuthDemoLogin}
+                    disabled={authLoading}
+                    className="pricing-btn-action pricing-btn-primary"
+                    style={{ padding: 13, fontSize: 14 }}
+                  >
+                    {authLoading ? 'Activating Workspace...' : '🚀 Launch Agency Pro Workspace (1-Click)'}
+                  </button>
+                </div>
+              )}
+
+              {/* TAB 2: Sign In */}
+              {authModalTab === 'login' && (
+                <form onSubmit={handleAuthLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div className="auth-input-group">
+                    <label className="auth-label">Work Email</label>
+                    <input
+                      type="email"
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      placeholder="founder@agency.com"
+                      required
+                      className="auth-input-field"
+                    />
+                  </div>
+
+                  <div className="auth-input-group">
+                    <label className="auth-label">Password</label>
+                    <input
+                      type="password"
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="auth-input-field"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="pricing-btn-action pricing-btn-primary"
+                  >
+                    {authLoading ? 'Signing In...' : 'Sign In to Workspace'}
+                  </button>
+
+                  <div style={{ textAlign: 'center', fontSize: 12, color: '#64748b' }}>
+                    Don't have an agency account yet?{' '}
+                    <span
+                      onClick={() => setAuthModalTab('register')}
+                      style={{ color: '#4f46e5', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      Create Account
+                    </span>
+                  </div>
+                </form>
+              )}
+
+              {/* TAB 3: Create Agency Account */}
+              {authModalTab === 'register' && (
+                <form onSubmit={handleAuthRegister} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div className="auth-input-group">
+                      <label className="auth-label">Your Name</label>
+                      <input
+                        type="text"
+                        value={authName}
+                        onChange={(e) => setAuthName(e.target.value)}
+                        placeholder="Dinesh Singla"
+                        required
+                        className="auth-input-field"
+                      />
+                    </div>
+                    <div className="auth-input-group">
+                      <label className="auth-label">Agency Name</label>
+                      <input
+                        type="text"
+                        value={authAgencyName}
+                        onChange={(e) => setAuthAgencyName(e.target.value)}
+                        placeholder="Apex Growth Digital"
+                        required
+                        className="auth-input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="auth-input-group">
+                    <label className="auth-label">Work Email</label>
+                    <input
+                      type="email"
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      placeholder="founder@apexoutreach.io"
+                      required
+                      className="auth-input-field"
+                    />
+                  </div>
+
+                  <div className="auth-input-group">
+                    <label className="auth-label">Password</label>
+                    <input
+                      type="password"
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      placeholder="Create secure password"
+                      required
+                      className="auth-input-field"
+                    />
+                  </div>
+
+                  <div className="auth-input-group">
+                    <label className="auth-label">Choose Initial Plan</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                      {[
+                        { id: 'starter', label: 'Starter', price: '₹2,999/mo' },
+                        { id: 'pro', label: 'Pro (Best)', price: '₹7,999/mo' },
+                        { id: 'scale', label: 'Scale', price: '₹19,999/mo' }
+                      ].map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={() => setAuthPlanChoice(p.id)}
+                          style={{
+                            padding: '6px 8px',
+                            borderRadius: 8,
+                            border: authPlanChoice === p.id ? '2px solid #4f46e5' : '1px solid #cbd5e1',
+                            background: authPlanChoice === p.id ? '#eef2ff' : '#ffffff',
+                            cursor: 'pointer',
+                            textAlign: 'center'
+                          }}
+                        >
+                          <div style={{ fontSize: 11, fontWeight: 700, color: authPlanChoice === p.id ? '#4f46e5' : '#0f172a' }}>{p.label}</div>
+                          <div style={{ fontSize: 10, color: '#64748b' }}>{p.price}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="pricing-btn-action pricing-btn-primary"
+                    style={{ marginTop: 4 }}
+                  >
+                    {authLoading ? 'Creating Workspace...' : 'Create Account & Start 14-Day Free Trial'}
+                  </button>
+                </form>
+              )}
+
+              {/* Bottom Security Note */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 10, textAlign: 'center', fontSize: 10, color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Shield size={12} color="#10b981" />
+                <span>SSL 256-Bit Secure • Indian Rupee (₹) Billing • 100% Data Privacy</span>
               </div>
             </div>
           </div>
