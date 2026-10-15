@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: apexoutreach-crm
+    name: apexoutreach-studio
     env: python
     plan: free
     region: oregon
