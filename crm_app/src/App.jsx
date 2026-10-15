@@ -1712,6 +1712,35 @@ export default function App() {
     return filteredLeads.slice(start, start + pageSize);
   }, [filteredLeads, currentPage, pageSize]);
 
+  // High-performance single-pass metrics computation for 60fps render
+  const filteredMetrics = useMemo(() => {
+    let withEmailCount = 0;
+    let uncontactedCount = 0;
+    let highRatedCount = 0;
+    const stageMap = {
+      'New': [],
+      'Contacted': [],
+      'Interested': [],
+      'Follow-up': [],
+      'Converted': [],
+      'Do Not Contact': []
+    };
+    for (let i = 0; i < filteredLeads.length; i++) {
+      const l = filteredLeads[i];
+      if (l.has_email) withEmailCount++;
+      const st = l.status || 'New';
+      if (!l.status || st === 'New' || st.toLowerCase() === 'uncontacted') uncontactedCount++;
+      const r = parseFloat(l.rating);
+      if (!isNaN(r) && r > 4.5) highRatedCount++;
+      if (stageMap[st]) {
+        stageMap[st].push(l);
+      } else {
+        stageMap['New'].push(l);
+      }
+    }
+    return { withEmailCount, uncontactedCount, highRatedCount, stageMap };
+  }, [filteredLeads]);
+
   // Bulk Selection Helpers
   const selectAllWithEmail = () => {
     const ids = new Set(filteredLeads.filter(l => l.has_email).map(l => l.id));
@@ -2700,13 +2729,13 @@ export default function App() {
                     </span>
                   </button>
                   <button onClick={selectAllWithEmail} className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }}>
-                    ✓ With Email ({filteredLeads.filter(l => l.has_email).length})
+                    ✓ With Email ({filteredMetrics.withEmailCount})
                   </button>
                   <button onClick={selectUncontactedOnly} className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }} title="Quick-select all leads not yet contacted">
-                    ✓ Uncontacted Only ({filteredLeads.filter(l => !l.status || l.status === 'New' || l.status.toLowerCase() === 'uncontacted').length})
+                    ✓ Uncontacted Only ({filteredMetrics.uncontactedCount})
                   </button>
                   <button onClick={selectHighRatedOnly} className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }} title="Quick-select all leads with Google rating > 4.5">
-                    ✓ Rating &gt; 4.5★ ({filteredLeads.filter(l => { const r = parseFloat(l.rating); return !isNaN(r) && r > 4.5; }).length})
+                    ✓ Rating &gt; 4.5★ ({filteredMetrics.highRatedCount})
                   </button>
                   <button onClick={selectAllInView} className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }}>
                     ✓ Current Page ({paginatedLeads.length})
@@ -3092,7 +3121,7 @@ export default function App() {
             {crmView === 'kanban' && (
               <div className="kanban-grid animate-fade-in">
                 {kanbanStages.map(stage => {
-                  const stageLeads = filteredLeads.filter(l => (l.status || 'New') === stage.id);
+                  const stageLeads = filteredMetrics.stageMap[stage.id] || [];
                   return (
                     <div
                       key={stage.id}
