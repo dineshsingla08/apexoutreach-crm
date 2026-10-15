@@ -21,12 +21,18 @@ class FastLeadStore:
     def get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path, timeout=30.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
-        # Performance PRAGMAs for extreme read/write throughput
-        conn.execute("PRAGMA journal_mode = WAL;")
-        conn.execute("PRAGMA synchronous = NORMAL;")
-        conn.execute("PRAGMA cache_size = -64000;")  # 64MB Cache
-        conn.execute("PRAGMA temp_store = MEMORY;")
-        conn.execute("PRAGMA mmap_size = 2147483648;")  # 2GB Memory-Mapped I/O
+        # Container-Safe Performance PRAGMAs
+        try:
+            conn.execute("PRAGMA journal_mode = WAL;")
+        except Exception:
+            pass
+        try:
+            conn.execute("PRAGMA synchronous = NORMAL;")
+            conn.execute("PRAGMA cache_size = -16000;")
+            conn.execute("PRAGMA temp_store = MEMORY;")
+            conn.execute("PRAGMA mmap_size = 67108864;")
+        except Exception:
+            pass
         return conn
 
     def init_db(self):

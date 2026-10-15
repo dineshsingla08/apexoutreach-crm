@@ -4,8 +4,8 @@ services:
     env: python
     plan: free
     region: oregon
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "pip install --no-cache-dir -r requirements.txt"
     startCommand: "python crm_backend/server.py"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.11.8
