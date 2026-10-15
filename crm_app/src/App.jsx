@@ -114,6 +114,66 @@ Would you be open to a quick 5-minute introductory call this week to review how 
 Best regards,
 {sender_name}
 {sender_phone} | {sender_email}`
+  },
+  digital_agency: {
+    id: 'digital_agency',
+    name: 'Digital Agency & Client Acquisition (Web, SEO, Ads)',
+    subject: "Acquiring 20–35 qualified appointments monthly for {name}",
+    body: `Hi {name} Leadership Team,
+
+I came across {name}'s operations in {area}. For top {category} providers in {city}, acquiring high-intent clients predictably without burning budget on untargeted social media boosts is the main growth priority.
+
+We build end-to-end client acquisition engines tailored for local service leaders:
+
+• High-Intent Search Ads: Capture prospective clients actively searching for {category} services in {area}.
+• Conversion Landing Pages: Modern, mobile-first design that turns visitors into qualified phone & email inquiries.
+• Automated WhatsApp Booking: Route incoming inquiries directly to your calendar or front desk to confirm appointments.
+
+Would you be open to a concise 4-minute discussion this Thursday around 11:30 AM or 3:00 PM to review a 1-page growth roadmap for {name}?
+
+Best regards,
+{sender_name}
+{sender_phone} | {sender_email}`
+  },
+  medical_health: {
+    id: 'medical_health',
+    name: 'Healthcare, Dental & Medical Clinics',
+    subject: "Scaling patient OPD & local visibility for {name} ({area})",
+    body: `Dear {name} Practice Management,
+
+I've been following {name}'s strong reputation in {area}. For established clinics and healthcare centers in {city}, filling doctors' daily consultation OPD schedules with qualified patient inquiries requires steady local visibility.
+
+We implement predictable patient acquisition systems for medical & diagnostic practices:
+
+• Google Map Pack Optimization: Ensure {name} ranks in the top 3 results for clinical searches in {area}.
+• High-Intent Treatment Inquiries: Target patients looking for specialized consultations and treatments nearby.
+• Direct Front-Desk WhatsApp Routing: Cut patient drop-offs by confirming OPD consultations instantly.
+
+Could we schedule a concise 5-minute phone call this Wednesday or Thursday to review patient demand in {area}?
+
+Best regards,
+{sender_name}
+{sender_phone} | {sender_email}`
+  },
+  universal_agency: {
+    id: 'universal_agency',
+    name: 'Universal B2B Agency & Growth Pitch',
+    subject: "Quick growth & partnership inquiry for {name} ({area})",
+    body: `Hi {name} Leadership Team,
+
+Noticed {name}'s operations and market presence across {area}.
+
+We partner with prominent {category} companies in {city} to scale new business acquisition, automate client follow-ups, and eliminate operational bottlenecks:
+
+1. Measurable ROI: Deliver quantifiable revenue and client velocity within 45 days.
+2. Zero Workflow Friction: Seamless integration with your current tools and operations.
+3. Dedicated Growth Support: Tailored execution aligned with {name}'s quarterly targets.
+
+Would you be open to an introductory 4-minute discussion this Thursday around 11:30 AM or 3:00 PM to explore potential synergies?
+
+Best regards,
+{sender_name}
+{sender_phone} | {sender_email}`
   }
 };
 
@@ -2747,18 +2807,63 @@ export default function App() {
                   )}
                 </div>
 
-                {selectedLeadIds.size > 0 && (
-                  <button
-                    onClick={() => {
-                      setAudienceType('selected_only');
-                      setActiveTab('campaign');
-                    }}
-                    className="btn-primary"
-                    style={{ fontSize: 12, padding: '5px 12px' }}
-                  >
-                    <Send size={12} /> Outreach to {selectedLeadIds.size} Selected Leads →
-                  </button>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  {selectedLeadIds.size > 0 ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          setAudienceType('selected_only');
+                          setActiveTab('campaign');
+                        }}
+                        className="btn-primary"
+                        style={{ fontSize: 11, padding: '5px 12px' }}
+                      >
+                        <Send size={12} /> Email {selectedLeadIds.size} Selected →
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveTab('whatsapp');
+                          setWaQueueIndex(0);
+                        }}
+                        className="btn-emerald"
+                        style={{ fontSize: 11, padding: '5px 12px' }}
+                      >
+                        <MessageSquare size={12} /> WhatsApp {selectedLeadIds.size} Selected →
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          const emailLeads = filteredLeads.filter(l => l.has_email);
+                          setSelectedLeadIds(new Set(emailLeads.map(l => l.id)));
+                          setAudienceType('selected_only');
+                          setActiveTab('campaign');
+                          showToast(`Loaded ${emailLeads.length} targeted leads into Campaign Studio!`);
+                        }}
+                        className="btn-primary"
+                        style={{ fontSize: 11, padding: '5px 12px', background: '#4f46e5' }}
+                        title="Target all currently filtered leads with email in Campaign Studio"
+                      >
+                        <Send size={12} /> Target with Email ({filteredMetrics.withEmailCount}) ➔
+                      </button>
+                      <button
+                        onClick={() => {
+                          const waLeads = filteredLeads.filter(l => l.wa_phone);
+                          setSelectedLeadIds(new Set(waLeads.map(l => l.id)));
+                          setActiveTab('whatsapp');
+                          setWaQueueIndex(0);
+                          showToast(`Loaded ${waLeads.length} targeted leads into WhatsApp Hub!`);
+                        }}
+                        className="btn-emerald"
+                        style={{ fontSize: 11, padding: '5px 12px' }}
+                        title="Target all currently filtered leads with WhatsApp in WhatsApp Hub"
+                      >
+                        <MessageSquare size={12} /> Target with WhatsApp ({filteredLeads.filter(l => l.wa_phone).length}) ➔
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -3359,54 +3464,126 @@ export default function App() {
                 )}
               </div>
 
-              {/* Keyword Presets */}
+              {/* Universal Agency Niche Presets */}
               <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    🎯 Universal Niche Presets (Any Field)
+                  </label>
+                  <span style={{ fontSize: 10, color: '#4f46e5', fontWeight: 600 }}>1-Click Agency Targets</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 10 }}>
+                  {[
+                    { label: '🩺 Dental & Healthcare Clinics', query: 'Dental Clinics', cat: 'Healthcare' },
+                    { label: '🚀 Digital Marketing Agencies', query: 'Digital Marketing Agencies', cat: 'Agencies' },
+                    { label: '🏢 Real Estate Brokers', query: 'Real Estate Brokers', cat: 'Real Estate' },
+                    { label: '🏭 Manufacturing & Supply', query: 'Manufacturing Units', cat: 'Industrial' },
+                    { label: '🏋️ Gyms & Fitness Studios', query: 'Fitness Gyms', cat: 'Fitness' },
+                    { label: '⚖️ Corporate Law & CA Firms', query: 'Chartered Accountants & Law Firms', cat: 'Legal & Finance' },
+                    { label: '💻 B2B Tech & Software', query: 'Software Companies', cat: 'Technology' },
+                    { label: '🍽️ Fine Dining & Restaurants', query: 'Restaurants', cat: 'Hospitality' }
+                  ].map(preset => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        const cityPart = scraperCity || 'Gurgaon, Haryana';
+                        const fullQ = `${preset.query} in ${cityPart}`;
+                        setScraperQuery(fullQ);
+                        const clean = preset.query.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 20);
+                        setScraperOutputName(`scraped_${clean}.csv`);
+                      }}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textAlign: 'left',
+                        padding: '6px 8px',
+                        background: scraperQuery.includes(preset.query) ? '#eef2ff' : '#f8fafc',
+                        color: scraperQuery.includes(preset.query) ? '#4f46e5' : '#334155',
+                        border: scraperQuery.includes(preset.query) ? '1.5px solid #6366f1' : '1px solid #e2e8f0',
+                        borderRadius: 7,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>
                   SEARCH QUERY KEYWORDS
                 </label>
                 <input
                   type="text"
                   value={scraperQuery}
                   onChange={(e) => setScraperQuery(e.target.value)}
-                  placeholder="e.g. Chartered Accountants in Gurgaon"
-                  style={{ width: '100%', padding: '10px 12px', fontSize: 13, fontWeight: 600 }}
+                  placeholder="e.g. Dentists in Miami or Digital Agencies in London"
+                  style={{ width: '100%', padding: '9px 12px', fontSize: 13, fontWeight: 600 }}
                 />
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 8 }}>
-                  {[
-                    'Chartered Accountants in Gurgaon',
-                    'Manufacturers in Udyog Vihar',
-                    'Tech Companies in Cyber City',
-                    'Clinics in Dwarka',
-                    'Real Estate in Golf Course Rd'
-                  ].map(q => (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => {
-                        setScraperQuery(q);
-                        const clean = q.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 22);
-                        setScraperOutputName(`scraped_${clean}.csv`);
-                      }}
-                      style={{ fontSize: 10, background: '#f1f5f9', color: '#4f46e5', border: '1px solid #e2e8f0', borderRadius: 5, padding: '3px 7px' }}
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
               </div>
 
-              {/* Target City */}
+              {/* Target City & Global City Selector */}
               <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>
-                  CITY / REGION OVERRIDE
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                    🌍 GLOBAL TARGET CITY / REGION
+                  </label>
+                  <span style={{ fontSize: 10, color: '#64748b' }}>Select or type any location</span>
+                </div>
                 <input
                   type="text"
                   value={scraperCity}
-                  onChange={(e) => setScraperCity(e.target.value)}
-                  placeholder="e.g. Gurgaon, Haryana or Dwarka, Delhi"
+                  onChange={(e) => {
+                    const newCity = e.target.value;
+                    setScraperCity(newCity);
+                    if (scraperQuery.includes(' in ')) {
+                      const prefix = scraperQuery.split(' in ')[0];
+                      setScraperQuery(`${prefix} in ${newCity}`);
+                    }
+                  }}
+                  placeholder="e.g. Miami, FL or London, UK or Gurgaon & Delhi NCR"
                   style={{ width: '100%', padding: '8px 12px', fontSize: 13 }}
                 />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                  {[
+                    'Miami, FL',
+                    'Austin, TX',
+                    'New York, NY',
+                    'London, UK',
+                    'Dubai, UAE',
+                    'Sydney, Australia',
+                    'Toronto, Canada',
+                    'Gurgaon & Delhi NCR',
+                    'Mumbai, India',
+                    'Bangalore, India'
+                  ].map(c => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => {
+                        setScraperCity(c);
+                        if (scraperQuery.includes(' in ')) {
+                          const prefix = scraperQuery.split(' in ')[0];
+                          setScraperQuery(`${prefix} in ${c}`);
+                        } else {
+                          setScraperQuery(`${scraperQuery} in ${c}`);
+                        }
+                      }}
+                      style={{
+                        fontSize: 10,
+                        background: scraperCity === c ? '#ecfdf5' : '#f1f5f9',
+                        color: scraperCity === c ? '#047857' : '#475569',
+                        border: scraperCity === c ? '1px solid #6ee7b7' : '1px solid #e2e8f0',
+                        borderRadius: 5,
+                        padding: '2px 7px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Scrape Limit */}
@@ -3529,21 +3706,51 @@ export default function App() {
                     Extracted Businesses ({scraperJob.leads ? scraperJob.leads.length : 0})
                   </h4>
                   {scraperJob.leads && scraperJob.leads.length > 0 && (
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        onClick={async () => {
+                          await fetchCsvs();
+                          setSelectedFile(scraperOutputName);
+                          setActiveTab('campaign');
+                          showToast(`Loaded ${scraperJob.leads.length} scraped leads into Email Campaign Studio!`);
+                        }}
+                        className="btn-primary"
+                        style={{ fontSize: 11, padding: '5px 12px', background: '#4f46e5' }}
+                        title="Transfer scraped leads directly into Email Campaign Studio"
+                      >
+                        <Send size={12} /> Target with Email Campaign ➔
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          await fetchCsvs();
+                          setSelectedFile(scraperOutputName);
+                          setActiveTab('whatsapp');
+                          setWaQueueIndex(0);
+                          showToast(`Loaded ${scraperJob.leads.length} scraped leads into WhatsApp Hub!`);
+                        }}
+                        className="btn-emerald"
+                        style={{ fontSize: 11, padding: '5px 12px' }}
+                        title="Transfer scraped leads directly into WhatsApp Outreach Queue"
+                      >
+                        <MessageSquare size={12} /> Target with WhatsApp ➔
+                      </button>
+
                       <button
                         onClick={() => exportLeadsToCsv(scraperJob.leads, scraperOutputName.replace('.csv', ''))}
                         className="btn-secondary"
                         style={{ fontSize: 11, padding: '5px 10px' }}
                       >
-                        <Download size={12} /> Download Scraped CSV
+                        <Download size={12} /> Export CSV
                       </button>
+
                       <button
                         onClick={async () => {
                           await fetchCsvs();
                           setSelectedFile(scraperOutputName);
                           setActiveTab('crm');
                         }}
-                        className="btn-primary"
+                        className="btn-secondary"
                         style={{ fontSize: 11, padding: '5px 10px' }}
                       >
                         <Users size={12} /> View in Master CRM →
@@ -4295,34 +4502,74 @@ export default function App() {
 
               {/* Send and Advance CTA */}
               {currentWaLead?.wa_phone && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const cleanPhone = currentWaLead.wa_phone;
-                    const interpolated = (customWaText || renderedPreview?.wa_text || '')
-                      .replace(/{name}/g, currentWaLead.name)
-                      .replace(/{area}/g, currentWaLead.area)
-                      .replace(/{city}/g, currentWaLead.city)
-                      .replace(/{category}/g, currentWaLead.category)
-                      .replace(/{rating}/g, currentWaLead.rating || 'solid')
-                      .replace(/{sender_name}/g, currentAccountObj?.name || 'CA Ishant Singla')
-                      .replace(/{sender_phone}/g, currentAccountObj?.phone || '+91 7015147209');
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const cleanPhone = currentWaLead.wa_phone;
+                      const interpolated = (customWaText || renderedPreview?.wa_text || '')
+                        .replace(/{name}/g, currentWaLead.name)
+                        .replace(/{business_name}/g, currentWaLead.name)
+                        .replace(/{area}/g, currentWaLead.area)
+                        .replace(/{city}/g, currentWaLead.city)
+                        .replace(/{category}/g, currentWaLead.category)
+                        .replace(/{rating}/g, currentWaLead.rating || 'top')
+                        .replace(/{sender_name}/g, currentAccountObj?.name || 'Growth Specialist')
+                        .replace(/{sender_phone}/g, currentAccountObj?.phone || '+91 7015147209')
+                        .replace(/{sender_company}/g, currentAccountObj?.designation || 'ApexOutreach Studio');
 
-                    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(interpolated)}`, '_blank');
-                    await handleStatusChange(currentWaLead, 'Contacted', 'whatsapp_sent', `Dispatched WhatsApp message`);
+                      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(interpolated)}`, '_blank');
+                      await handleStatusChange(currentWaLead, 'Contacted', 'whatsapp_sent', `Dispatched WhatsApp message`);
 
-                    if (waQueueIndex < waQueueLeads.length - 1) {
-                      setWaQueueIndex(prev => prev + 1);
-                    } else {
-                      confetti({ particleCount: 70, spread: 60 });
-                      showToast('WhatsApp queue completed!');
-                    }
-                  }}
-                  className="btn-emerald"
-                  style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
-                >
-                  💬 Dispatch to WhatsApp & Advance ➔
-                </button>
+                      if (waQueueIndex < waQueueLeads.length - 1) {
+                        setWaQueueIndex(prev => prev + 1);
+                      } else {
+                        confetti({ particleCount: 70, spread: 60 });
+                        showToast('WhatsApp queue completed!');
+                      }
+                    }}
+                    className="btn-emerald"
+                    style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: 14 }}
+                  >
+                    💬 Dispatch to WhatsApp & Advance ➔
+                  </button>
+
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const interpolated = (customWaText || renderedPreview?.wa_text || '')
+                          .replace(/{name}/g, currentWaLead.name)
+                          .replace(/{business_name}/g, currentWaLead.name)
+                          .replace(/{area}/g, currentWaLead.area)
+                          .replace(/{city}/g, currentWaLead.city)
+                          .replace(/{category}/g, currentWaLead.category)
+                          .replace(/{rating}/g, currentWaLead.rating || 'top')
+                          .replace(/{sender_name}/g, currentAccountObj?.name || 'Growth Specialist')
+                          .replace(/{sender_phone}/g, currentAccountObj?.phone || '+91 7015147209');
+
+                        navigator.clipboard.writeText(interpolated);
+                        showToast('Copied message text to clipboard for SMS/LinkedIn/DMs!', 'success');
+                      }}
+                      className="btn-secondary"
+                      style={{ flex: 1, padding: '8px', fontSize: 12, justifyContent: 'center' }}
+                      title="Copy personalized text to clipboard for LinkedIn, SMS or Instagram"
+                    >
+                      <Copy size={13} /> Copy for SMS / DM
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setWaQueueIndex(prev => Math.min(waQueueLeads.length - 1, prev + 1))}
+                      disabled={waQueueIndex >= waQueueLeads.length - 1}
+                      className="btn-secondary"
+                      style={{ padding: '8px 12px', fontSize: 12 }}
+                      title="Skip current lead without sending"
+                    >
+                      Skip ➔
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
