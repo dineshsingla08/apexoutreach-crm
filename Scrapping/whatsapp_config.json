@@ -1,0 +1,12 @@
+{
+    "sheet_path": "d:/Dinesh/antigravity/Scrapping/clinics_in_gurgaon.csv",
+    "test_mode": true,
+    "sender_phone": "8958573159",
+    "test_recipient": "8958573159",
+    "dry_run": false,
+    "send_limit": 50,
+    "sender_name": "Vidhi Singhal",
+    "delay_seconds_min": 10,
+    "delay_seconds_max": 20,
+    "headless": false
+}

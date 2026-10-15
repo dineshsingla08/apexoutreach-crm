@@ -1,0 +1,28 @@
+[
+    {
+        "id": "ishant_singla",
+        "name": "CA Ishant Singla",
+        "email": "Ishantsingla94@gmail.com",
+        "phone": "+91 7015147209",
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "smtp_user": "Ishantsingla94@gmail.com",
+        "smtp_pass": "dfeb ract fsqo cesu",
+        "designation": "Chartered Accountant & Financial Advisor",
+        "location": "Karnal / Delhi NCR",
+        "is_active": true
+    },
+    {
+        "id": "dinesh_singhal",
+        "name": "CA Ishant Singla (via Relay)",
+        "email": "Dineshvidhi815@gmail.com",
+        "phone": "+91 7015147209",
+        "designation": "Chartered Accountant & Wealth Advisor",
+        "location": "Gurgaon, Dwarka & Delhi NCR",
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "smtp_user": "Dineshvidhi815@gmail.com",
+        "smtp_pass": "glqx vnmm irpv fqmg",
+        "is_active": true
+    }
+]

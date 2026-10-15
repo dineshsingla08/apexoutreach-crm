@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: apexoutreach-crm
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: "npm --prefix crm_app install && npm --prefix crm_app run build && pip install -r requirements.txt"
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT crm_backend.server:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: NODE_VERSION
+        value: 20.11.0

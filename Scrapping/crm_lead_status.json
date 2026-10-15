@@ -1,0 +1,156 @@
+{
+    "businesses_in_gurgaon_dwarka_with_email.csv_0": {
+        "status": "Contacted",
+        "updated_at": "2026-10-15 19:44:01"
+    },
+    "test_1": {
+        "status": "Follow-up"
+    },
+    "master_1": {
+        "status": "New",
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 20:12:27",
+                "channel": "email",
+                "action": "email_sent",
+                "status": "Contacted",
+                "details": "Sent mutual fund cold intro"
+            },
+            {
+                "timestamp": "2026-10-15 20:19:28",
+                "channel": "system",
+                "action": "task_created",
+                "status": "Follow-up",
+                "details": "Task added: Call CFO regarding 50L liquid fund parking (Due: 2026-10-18T11:00)"
+            },
+            {
+                "timestamp": "2026-10-15 20:19:28",
+                "channel": "system",
+                "action": "task_completed",
+                "status": "Follow-up",
+                "details": "Task 'Call CFO regarding 50L liquid fund parking' marked task completed"
+            },
+            {
+                "timestamp": "2026-10-15 20:19:38",
+                "channel": "system",
+                "action": "task_created",
+                "status": "Follow-up",
+                "details": "Task added: Call CFO regarding 50L liquid fund parking (Due: 2026-10-18T11:00)"
+            },
+            {
+                "timestamp": "2026-10-15 20:19:38",
+                "channel": "email",
+                "action": "reply_received",
+                "status": "Interested",
+                "details": "CFO responded: Interested in 6.85% Liquid Fund returns. Call on Monday."
+            },
+            {
+                "timestamp": "2026-10-15 20:46:43",
+                "channel": "manual",
+                "action": "status_update",
+                "status": "New",
+                "details": "Stage updated to \"New\""
+            }
+        ],
+        "last_contacted": "2026-10-15 20:46:43",
+        "updated_at": "2026-10-15 20:46:43"
+    },
+    "master_6": {
+        "status": "New",
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 20:43:11",
+                "channel": "manual",
+                "action": "status_update",
+                "status": "Contacted",
+                "details": "Stage updated to \"Contacted\""
+            },
+            {
+                "timestamp": "2026-10-15 20:46:34",
+                "channel": "manual",
+                "action": "status_update",
+                "status": "New",
+                "details": "Stage updated to \"New\""
+            }
+        ],
+        "last_contacted": "2026-10-15 20:46:34",
+        "updated_at": "2026-10-15 20:46:34"
+    },
+    "test_lead_1": {
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 20:48:17",
+                "channel": "call",
+                "action": "note_logged",
+                "status": "New",
+                "details": "Discussed corporate liquid yield"
+            },
+            {
+                "timestamp": "2026-10-15 20:48:26",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Interested",
+                "details": "Moved to Interested via Kanban"
+            }
+        ],
+        "last_contacted": "2026-10-15 20:48:26",
+        "updated_at": "2026-10-15 20:48:26",
+        "status": "Interested"
+    },
+    "master_446": {
+        "status": "New",
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 20:50:27",
+                "channel": "email",
+                "action": "reply_received",
+                "status": "Interested",
+                "details": "Inbound reply: \"Interested in Mutual Fund Treasury yield calculation for Bansal Rice Mills. Please call us.\""
+            },
+            {
+                "timestamp": "2026-10-15 20:50:29",
+                "channel": "email",
+                "action": "reply_received",
+                "status": "Interested",
+                "details": "Inbound reply: \"Interested in Mutual Fund Treasury yield calculation for Bansal Rice Mills. Please call us.\""
+            },
+            {
+                "timestamp": "2026-10-15 20:52:52",
+                "channel": "manual",
+                "action": "status_update",
+                "status": "New",
+                "details": "Stage updated to \"New\""
+            }
+        ],
+        "last_contacted": "2026-10-15 20:52:52",
+        "updated_at": "2026-10-15 20:52:52"
+    },
+    "test_lead_seq": {
+        "status": "Follow-up",
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 20:55:20",
+                "channel": "sequence_runner",
+                "action": "sequence_step_2",
+                "status": "Follow-up",
+                "details": "Advanced to Touch 2: Value Proof"
+            }
+        ],
+        "last_contacted": "2026-10-15 20:55:20",
+        "updated_at": "2026-10-15 20:55:20"
+    },
+    "master_0": {
+        "status": "Contacted",
+        "engagement_history": [
+            {
+                "timestamp": "2026-10-15 21:07:58",
+                "channel": "manual",
+                "action": "email_sent",
+                "status": "Contacted",
+                "details": "Intro sent"
+            }
+        ],
+        "last_contacted": "2026-10-15 21:13:01",
+        "updated_at": "2026-10-15 21:07:58"
+    }
+}

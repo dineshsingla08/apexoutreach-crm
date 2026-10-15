@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+crm_app/node_modules/
+
+# Python cache & logs
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.log
+
+# Sensitive sessions & scratch
+Scrapping/.whatsapp_session/
+Scrapping/preview_*.html
+Scrapping/*.png
+Scrapping/*.log
+*.local
+.env
+.vscode/
+.idea/

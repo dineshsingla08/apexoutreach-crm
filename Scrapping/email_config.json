@@ -1,0 +1,19 @@
+{
+    "sheet_path": "d:/Dinesh/antigravity/Scrapping/clinics_in_gurgaon.csv",
+    "test_mode": false,
+    "test_recipient": "dineshsingla08@gmail.com",
+    "dry_run": false,
+    "send_limit": 1000,
+    "check_replies_on_start": true,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "smtp_username": "Dineshvidhi815@gmail.com",
+    "smtp_password": "glqx vnmm irpv fqmg",
+    "imap_server": "imap.gmail.com",
+    "imap_port": 993,
+    "sender_name": "Vidhi Singhal",
+    "sender_email": "Dineshvidhi815@gmail.com",
+    "sender_phone": "+91 8958573159",
+    "delay_seconds_min": 4,
+    "delay_seconds_max": 8
+}

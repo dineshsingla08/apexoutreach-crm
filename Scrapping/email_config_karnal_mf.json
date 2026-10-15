@@ -1,0 +1,20 @@
+{
+    "sheet_path": "d:/Dinesh/antigravity/Scrapping/businesses_in_gurgaon_dwarka_with_email.csv",
+    "sent_log_path": "d:/Dinesh/antigravity/Scrapping/gurgaon_dwarka_mf_sent_log.csv",
+    "test_mode": false,
+    "test_recipient": "dineshsingla08@gmail.com",
+    "dry_run": false,
+    "send_limit": 5000,
+    "check_replies_on_start": true,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "smtp_username": "Ishantsingla94@gmail.com",
+    "smtp_password": "dfeb ract fsqo cesu",
+    "imap_server": "imap.gmail.com",
+    "imap_port": 993,
+    "sender_name": "CA Ishant Singla",
+    "sender_email": "Ishantsingla94@gmail.com",
+    "sender_phone": "+91 7015147209",
+    "delay_seconds_min": 5,
+    "delay_seconds_max": 10
+}

@@ -1,0 +1,12 @@
+{
+  "name": "apexoutreach-studio",
+  "version": "1.0.0",
+  "description": "ApexOutreach CRM & Multi-Channel Campaign Studio",
+  "private": true,
+  "scripts": {
+    "host": "python hosting.py",
+    "start": "python hosting.py",
+    "build": "cd crm_app && npm run build",
+    "dev": "start_crm_app.bat"
+  }
+}
