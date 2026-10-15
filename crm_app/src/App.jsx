@@ -2146,6 +2146,19 @@ export default function App() {
     showToast(`Selected ${ids.size} leads with rating > 4.5★`);
   };
 
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setCityFilter('ALL');
+    setCategoryFilter('ALL');
+    setEmailFilter('ALL');
+    setStatusFilter('ALL');
+    setTierFilter('ALL');
+    setScoreSortOrder('score_desc');
+    setHighPriorityFilter(false);
+    setCurrentPage(1);
+    showToast('Reset all filters — Showing full database', 'info');
+  };
+
   // Quick Jump Navigation Handler
   const handleQuickJump = () => {
     const p = parseInt(jumpPageInput, 10);
@@ -2716,6 +2729,85 @@ export default function App() {
       {/* Main Container */}
       <main style={{ flex: 1, padding: '18px 28px', maxWidth: 1700, margin: '0 auto', width: '100%' }}>
 
+        {/* Interactive Agency Outreach Journey Flow Ribbon */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: 12,
+          padding: '8px 16px',
+          marginBottom: 16,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+          flexWrap: 'wrap',
+          gap: 10
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#4f46e5', letterSpacing: 0.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Compass size={13} color="#4f46e5" />
+              Agency Outreach Flow:
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
+            {[
+              { id: 'scraper', num: '1', label: 'Discover Leads', sub: 'Maps Scraper', active: activeTab === 'scraper' },
+              { id: 'crm', num: '2', label: 'Segment & Score', sub: `${countAll.toLocaleString()} Leads`, active: activeTab === 'crm' },
+              { id: 'campaign', num: '3', label: 'Shoot Email', sub: `${countWithEmail.toLocaleString()} Verified`, active: activeTab === 'campaign' },
+              { id: 'whatsapp', num: '4', label: 'Shoot WhatsApp', sub: `${countWithWa.toLocaleString()} Mobiles`, active: activeTab === 'whatsapp' },
+              { id: 'logs', num: '5', label: 'Track & Convert', sub: 'Pipeline & Logs', active: activeTab === 'logs' },
+            ].map((step, idx) => (
+              <React.Fragment key={step.id}>
+                {idx > 0 && <span style={{ color: '#cbd5e1', fontSize: 12, fontWeight: 700 }}>➔</span>}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(step.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 10px',
+                    borderRadius: 8,
+                    border: step.active ? '1.5px solid #4f46e5' : '1px solid #e2e8f0',
+                    background: step.active ? '#eef2ff' : '#f8fafc',
+                    color: step.active ? '#4f46e5' : '#475569',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title={`Switch to ${step.label} (${step.sub})`}
+                >
+                  <span style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: '50%',
+                    background: step.active ? '#4f46e5' : '#cbd5e1',
+                    color: '#ffffff',
+                    fontSize: 10,
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {step.num}
+                  </span>
+                  <span>{step.label}</span>
+                  <span style={{ fontSize: 10, color: step.active ? '#6366f1' : '#94a3b8', fontWeight: 600 }}>({step.sub})</span>
+                </button>
+              </React.Fragment>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, color: '#059669', fontWeight: 700, background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span className="pulse-indicator" style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
+              Live Omnichannel Engine
+            </span>
+          </div>
+        </div>
+
         {/* =========================================================================
             TAB 1: CRM LEADS & KANBAN PIPELINE (WITH MASTER DATABASE SUPPORT)
            ========================================================================= */}
@@ -3046,6 +3138,29 @@ export default function App() {
                       >
                         <HelpCircle size={11} /> Syntax Guide
                       </button>
+
+                      {(searchQuery || cityFilter !== 'ALL' || categoryFilter !== 'ALL' || emailFilter !== 'ALL' || statusFilter !== 'ALL' || tierFilter !== 'ALL' || highPriorityFilter) && (
+                        <button
+                          type="button"
+                          onClick={handleResetFilters}
+                          style={{
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            border: '1px solid #fecaca',
+                            borderRadius: 6,
+                            fontSize: 10,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 3,
+                            padding: '2px 7px'
+                          }}
+                          title="Reset all active search and dropdown filters"
+                        >
+                          ✕ Clear Filters
+                        </button>
+                      )}
                     </div>
 
                     {showSearchHelp && (
@@ -3345,8 +3460,41 @@ export default function App() {
                     <tbody>
                       {filteredLeads.length === 0 ? (
                         <tr>
-                          <td colSpan={8} style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
-                            No businesses match your current filters.
+                          <td colSpan={8} style={{ textAlign: 'center', padding: '48px 24px' }}>
+                            <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                                <Search size={22} />
+                              </div>
+                              <h4 style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                                No businesses match your active filters
+                              </h4>
+                              <p style={{ fontSize: 12, color: '#64748b', margin: 0, lineHeight: 1.5 }}>
+                                {searchQuery ? <span>Search: <strong>"{searchQuery}"</strong> • </span> : null}
+                                City: <strong>{cityFilter}</strong> • Category: <strong>{categoryFilter}</strong> • Tier: <strong>{tierFilter}</strong> • Email: <strong>{emailFilter}</strong>
+                              </p>
+                              <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                                <button
+                                  type="button"
+                                  onClick={handleResetFilters}
+                                  className="btn-primary"
+                                  style={{ fontSize: 12, padding: '7px 14px' }}
+                                >
+                                  <RefreshCw size={12} /> Reset All Filters (View All {leads.length.toLocaleString()} Leads)
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (searchQuery) setScraperQuery(searchQuery);
+                                    setActiveTab('scraper');
+                                  }}
+                                  className="btn-secondary"
+                                  style={{ fontSize: 12, padding: '7px 14px' }}
+                                  title="Open Google Maps Scraper to extract new leads"
+                                >
+                                  <Compass size={13} color="#4f46e5" /> Scrape New Leads for this Search ➔
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       ) : (
@@ -3911,7 +4059,30 @@ export default function App() {
                   <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
                     🎯 Universal Niche Presets (Any Field)
                   </label>
-                  <span style={{ fontSize: 10, color: '#4f46e5', fontWeight: 600 }}>1-Click Agency Targets</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 10, color: '#4f46e5', fontWeight: 600 }}>1-Click Agency Targets</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScraperQuery('Chartered Accountants in Gurgaon');
+                        setScraperCity('Gurgaon, Haryana');
+                        setScraperLimit(25);
+                        setScraperOutputName('scraped_ca_gurgaon.csv');
+                        showToast('Reset scraper search form', 'info');
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#64748b',
+                        fontSize: 10,
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                      title="Reset query and settings to defaults"
+                    >
+                      Clear / New Search
+                    </button>
+                  </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 10 }}>
                   {[
@@ -4436,6 +4607,9 @@ export default function App() {
                     <option value="logistics_supply_chain">🚚 Logistics, Transport & Warehousing</option>
                     <option value="real_estate_construction">🏗️ Real Estate, Construction & Development</option>
                     <option value="b2b_professional">💼 General B2B Professional Services</option>
+                    <option value="digital_agency">🚀 Digital & Marketing Agency Outreach</option>
+                    <option value="medical_health">🩺 Healthcare, Clinics & Medical Practices</option>
+                    <option value="universal_agency">🌐 High-Converting Universal Agency Pitch</option>
                   </select>
                 </div>
 
@@ -4507,6 +4681,66 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Live Sample Lead Preview Ribbon */}
+                {leads.length > 0 && (
+                  <div style={{
+                    marginBottom: 12,
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    background: '#f8fafc',
+                    border: '1px solid #cbd5e1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: 12
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden' }}>
+                      <span style={{ fontSize: 13 }}>🎯</span>
+                      <span style={{ fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }}>Live Preview Target:</span>
+                      <span style={{ fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {previewLead?.name || 'Sample Lead'}
+                      </span>
+                      <span style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap' }}>
+                        ({previewLead?.city || 'City'})
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const curIdx = leads.findIndex(l => l.id === previewLead?.id || l.name === previewLead?.name);
+                          const prevIdx = Math.max(0, (curIdx >= 0 ? curIdx : 0) - 1);
+                          setPreviewLead(leads[prevIdx]);
+                        }}
+                        className="btn-secondary"
+                        style={{ padding: '2px 7px', fontSize: 11, borderRadius: 4 }}
+                        title="Preview with Previous Lead"
+                      >
+                        ◀
+                      </button>
+                      <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>
+                        {(() => {
+                          const curIdx = leads.findIndex(l => l.id === previewLead?.id || l.name === previewLead?.name);
+                          return (curIdx >= 0 ? curIdx : 0) + 1;
+                        })()} / {leads.length}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const curIdx = leads.findIndex(l => l.id === previewLead?.id || l.name === previewLead?.name);
+                          const nextIdx = Math.min(leads.length - 1, (curIdx >= 0 ? curIdx : 0) + 1);
+                          setPreviewLead(leads[nextIdx]);
+                        }}
+                        className="btn-secondary"
+                        style={{ padding: '2px 7px', fontSize: 11, borderRadius: 4 }}
+                        title="Preview with Next Lead"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Subject Line Input */}
                 <div style={{ marginBottom: 12 }}>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 4, textTransform: 'uppercase' }}>
@@ -4529,7 +4763,7 @@ export default function App() {
                     INSERT PERSONALIZATION TAGS:
                   </label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {['{name}', '{area}', '{city}', '{category}', '{rating}', '{sender_name}', '{sender_phone}'].map(tag => (
+                    {['{name}', '{area}', '{city}', '{category}', '{rating}', '{sender_name}', '{sender_company}', '{sender_phone}'].map(tag => (
                       <button
                         key={tag}
                         type="button"
@@ -4852,6 +5086,88 @@ export default function App() {
                       </button>
                     </div>
                   </div>
+
+                  {/* SDR 1-Click Status Tagger */}
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#64748b' }}>QUICK STATUS:</span>
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {[
+                        { status: 'New', label: '⚡ New', bg: '#f1f5f9', color: '#475569' },
+                        { status: 'Contacted', label: '📞 Contacted', bg: '#eff6ff', color: '#2563eb' },
+                        { status: 'Interested', label: '🔥 Interested', bg: '#fef3c7', color: '#d97706' },
+                        { status: 'Follow-up', label: '⏳ Follow-up', bg: '#ede9fe', color: '#7c3aed' },
+                        { status: 'Converted', label: '🎉 Won', bg: '#ecfdf5', color: '#059669' },
+                        { status: 'Lost', label: '🚫 Lost', bg: '#fee2e2', color: '#dc2626' },
+                      ].map(s => {
+                        const isCurrent = (currentWaLead.status || 'New') === s.status;
+                        return (
+                          <button
+                            key={s.status}
+                            type="button"
+                            onClick={async () => {
+                              await handleStatusChange(currentWaLead, s.status, 'manual_status_change', `Status updated to ${s.status} via WhatsApp Hub`);
+                              showToast(`Lead tagged as ${s.status}`, 'success');
+                            }}
+                            style={{
+                              fontSize: 10,
+                              fontWeight: isCurrent ? 800 : 600,
+                              padding: '2px 7px',
+                              borderRadius: 4,
+                              background: isCurrent ? s.color : s.bg,
+                              color: isCurrent ? '#ffffff' : s.color,
+                              border: isCurrent ? `1px solid ${s.color}` : '1px solid #cbd5e1',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            {s.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Empty Queue State */}
+              {waQueueLeads.length === 0 && (
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1.5px dashed #cbd5e1',
+                  borderRadius: 10,
+                  padding: 24,
+                  textAlign: 'center',
+                  marginBottom: 16
+                }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>📱</div>
+                  <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: '0 0 6px 0' }}>
+                    No WhatsApp Contacts in Current Filter
+                  </h4>
+                  <p style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+                    {countWithWa > 0
+                      ? `Your active search/category filter matched 0 mobile leads, but there are ${countWithWa.toLocaleString()} WhatsApp numbers available across your database.`
+                      : 'No WhatsApp or mobile numbers found in this dataset. Use the Maps Scraper to extract leads with verified phone numbers.'}
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {countWithWa > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="btn-primary"
+                        style={{ fontSize: 12, padding: '7px 14px' }}
+                      >
+                        🔄 Reset Filters & Load All {countWithWa.toLocaleString()} Numbers
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('scraper')}
+                      className="btn-secondary"
+                      style={{ fontSize: 12, padding: '7px 14px' }}
+                    >
+                      🧭 Scrape New Leads for WhatsApp ➔
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -5016,10 +5332,30 @@ export default function App() {
 
             {/* Bubble Preview */}
             <div className="glass-panel" style={{ padding: 22 }}>
-              <h4 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Real WhatsApp Bubble Preview</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h4 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: '#0f172a' }}>Real WhatsApp Bubble Preview</h4>
+                {currentWaLead && (
+                  <span style={{ fontSize: 11, background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: 12, fontWeight: 700 }}>
+                    Target: {currentWaLead.name}
+                  </span>
+                )}
+              </div>
               <div style={{ background: '#e5ddd5', borderRadius: 12, padding: 24, border: '1px solid #cbd5e1' }}>
-                <div style={{ background: '#dcf8c6', color: '#0f172a', borderRadius: '8px 8px 0 8px', padding: 16, fontSize: 14, lineHeight: 1.6, maxWidth: 520, marginLeft: 'auto', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
-                  {renderedPreview?.wa_text || customWaText}
+                <div style={{ background: '#dcf8c6', color: '#0f172a', borderRadius: '8px 8px 0 8px', padding: 16, fontSize: 14, lineHeight: 1.6, maxWidth: 520, marginLeft: 'auto', boxShadow: '0 1px 2px rgba(0,0,0,0.1)', whiteSpace: 'pre-line' }}>
+                  {(() => {
+                    const text = customWaText || renderedPreview?.wa_text || '';
+                    if (!currentWaLead) return text;
+                    return text
+                      .replace(/{name}/g, currentWaLead.name)
+                      .replace(/{business_name}/g, currentWaLead.name)
+                      .replace(/{area}/g, currentWaLead.area || currentWaLead.city)
+                      .replace(/{city}/g, currentWaLead.city)
+                      .replace(/{category}/g, currentWaLead.category)
+                      .replace(/{rating}/g, currentWaLead.rating || '4.8')
+                      .replace(/{sender_name}/g, currentAccountObj?.name || 'Growth Specialist')
+                      .replace(/{sender_phone}/g, currentAccountObj?.phone || '+91 7015147209')
+                      .replace(/{sender_company}/g, currentAccountObj?.designation || 'ApexOutreach Studio');
+                  })()}
                   <div style={{ textAlign: 'right', fontSize: 10, color: '#64748b', marginTop: 8 }}>
                     Just now ✓✓
                   </div>
