@@ -1,0 +1,50 @@
+[
+  {
+    "id": "usr_admin_1",
+    "email": "dineshsingla08@gmail.com",
+    "name": "Dinesh Singla",
+    "role": "admin",
+    "provider": "Google OAuth",
+    "created_at": "2026-10-10 09:30:00",
+    "plan": "Enterprise Agency Admin",
+    "credits": 5000,
+    "status": "Active",
+    "last_active": "Just now"
+  },
+  {
+    "id": "usr_admin_2",
+    "email": "ishantsingla08@gmail.com",
+    "name": "Ishant Singla",
+    "role": "admin",
+    "provider": "Google OAuth",
+    "created_at": "2026-10-11 10:15:00",
+    "plan": "Enterprise Agency Admin",
+    "credits": 5000,
+    "status": "Active",
+    "last_active": "Just now"
+  },
+  {
+    "id": "usr_client_1",
+    "email": "rahul.sharma@sterling.com",
+    "name": "Rahul Sharma",
+    "role": "member",
+    "provider": "Email OTP",
+    "created_at": "2026-10-14 14:20:00",
+    "plan": "Growth Tier",
+    "credits": 780,
+    "status": "Active",
+    "last_active": "Yesterday"
+  },
+  {
+    "id": "usr_client_2",
+    "email": "priya.verma@dolphy.in",
+    "name": "Priya Verma",
+    "role": "member",
+    "provider": "Email OTP",
+    "created_at": "2026-10-15 16:45:00",
+    "plan": "Starter Tier",
+    "credits": 350,
+    "status": "Active",
+    "last_active": "2 days ago"
+  }
+]

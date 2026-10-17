@@ -140,7 +140,7 @@
         "updated_at": "2026-10-15 20:55:20"
     },
     "master_0": {
-        "status": "Contacted",
+        "status": "New",
         "engagement_history": [
             {
                 "timestamp": "2026-10-15 21:07:58",
@@ -148,9 +148,112 @@
                 "action": "email_sent",
                 "status": "Contacted",
                 "details": "Intro sent"
+            },
+            {
+                "timestamp": "2026-10-16 22:46:10",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Interested",
+                "details": "Moved to Interested via Kanban Drag & Drop"
+            },
+            {
+                "timestamp": "2026-10-16 22:46:11",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Follow-up",
+                "details": "Moved to Follow-up via Kanban Drag & Drop"
+            },
+            {
+                "timestamp": "2026-10-16 22:49:11",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Interested",
+                "details": "Moved to Interested via Kanban Drag & Drop"
+            },
+            {
+                "timestamp": "2026-10-16 22:49:12",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Contacted",
+                "details": "Moved to Contacted via Kanban Drag & Drop"
+            },
+            {
+                "timestamp": "2026-10-16 22:49:13",
+                "channel": "kanban_board",
+                "action": "pipeline_drag",
+                "status": "Qualified",
+                "details": "Moved to Qualified via Kanban Drag & Drop"
+            },
+            {
+                "timestamp": "2026-10-17 00:07:32",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "New",
+                "details": "Status updated to New via WhatsApp Hub"
+            },
+            {
+                "timestamp": "2026-10-17 00:07:34",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "New",
+                "details": "Status updated to New via WhatsApp Hub"
+            },
+            {
+                "timestamp": "2026-10-17 00:07:35",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "New",
+                "details": "Status updated to New via WhatsApp Hub"
+            },
+            {
+                "timestamp": "2026-10-17 00:07:36",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "New",
+                "details": "Status updated to New via WhatsApp Hub"
+            },
+            {
+                "timestamp": "2026-10-17 00:08:03",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "Follow-up",
+                "details": "Status updated to Follow-up via WhatsApp Hub"
+            },
+            {
+                "timestamp": "2026-10-17 00:08:05",
+                "channel": "manual",
+                "action": "manual_status_change",
+                "status": "New",
+                "details": "Status updated to New via WhatsApp Hub"
             }
         ],
-        "last_contacted": "2026-10-15 21:13:01",
-        "updated_at": "2026-10-15 21:07:58"
+        "last_contacted": "2026-10-17 00:08:05",
+        "updated_at": "2026-10-17 00:08:05"
+    },
+    "lead_1792176431_692": {
+        "status": "New",
+        "notes": "Tier-1 component supplier",
+        "deal_value": 75000.0,
+        "history": [
+            {
+                "timestamp": "2026-10-17 00:17:11",
+                "channel": "manual",
+                "action": "lead_created",
+                "details": "Lead added manually to CRM by user"
+            }
+        ]
+    },
+    "lead_1792176558_616": {
+        "status": "New",
+        "notes": "Tier-1 automated robotics supplier looking for enterprise outreach",
+        "deal_value": 95000.0,
+        "history": [
+            {
+                "timestamp": "2026-10-17 00:19:18",
+                "channel": "manual",
+                "action": "lead_created",
+                "details": "Lead added manually to CRM by user"
+            }
+        ]
     }
 }

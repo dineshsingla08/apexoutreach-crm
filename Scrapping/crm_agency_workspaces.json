@@ -1,0 +1,74 @@
+[
+    {
+        "id": "ws_apex_treasury",
+        "name": "Apex Treasury & Working Capital",
+        "client_name": "Apex Wealth Advisory",
+        "niche": "Manufacturing & Industrial CFOs",
+        "target_category": "Manufacturing & Industry",
+        "monthly_retainer": 65000,
+        "currency": "\u20b9",
+        "target_leads": 1200,
+        "meetings_target": 15,
+        "active_campaign": "Manufacturing Reserve Optimization Q4",
+        "channels": [
+            "Email",
+            "WhatsApp"
+        ],
+        "status": "Active",
+        "created_at": "2026-10-01"
+    },
+    {
+        "id": "ws_techscale_b2b",
+        "name": "TechScale SaaS Outbound",
+        "client_name": "CloudNine Infotech",
+        "niche": "B2B Tech & IT Services",
+        "target_category": "Corporate & Commercial Services",
+        "monthly_retainer": 85000,
+        "currency": "\u20b9",
+        "target_leads": 800,
+        "meetings_target": 20,
+        "active_campaign": "SaaS Demo Acceleration",
+        "channels": [
+            "Email",
+            "WhatsApp"
+        ],
+        "status": "Active",
+        "created_at": "2026-10-05"
+    },
+    {
+        "id": "ws_prime_realty",
+        "name": "Prime Commercial Realty",
+        "client_name": "Landmark Developers",
+        "niche": "Commercial Real Estate & Builders",
+        "target_category": "Real Estate & Construction",
+        "monthly_retainer": 50000,
+        "currency": "\u20b9",
+        "target_leads": 650,
+        "meetings_target": 10,
+        "active_campaign": "Escrow Project Finance Outreach",
+        "channels": [
+            "Email",
+            "WhatsApp"
+        ],
+        "status": "Active",
+        "created_at": "2026-10-08"
+    },
+    {
+        "id": "ws_1792171724",
+        "name": "test",
+        "client_name": "test",
+        "niche": "Manufacturing & Industrial CFOs",
+        "target_category": "Corporate & Commercial Services",
+        "monthly_retainer": 50000.0,
+        "currency": "\u20b9",
+        "target_leads": 1000,
+        "meetings_target": 15,
+        "active_campaign": "Automated Outbound Q4",
+        "channels": [
+            "Email",
+            "WhatsApp"
+        ],
+        "status": "Active",
+        "created_at": "2026-10-16"
+    }
+]

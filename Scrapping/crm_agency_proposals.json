@@ -1,0 +1,44 @@
+[
+    {
+        "id": "prop_1792171518_522",
+        "lead_id": "master_0",
+        "client_name": "STERLING MANUFACTURING COMPANY",
+        "contact_person": "Business Owner / Promoter",
+        "email": "customercare@sterlingmfgco.com",
+        "package_name": "Growth Outbound Retainer",
+        "monthly_fee": 45000.0,
+        "currency": "\u20b9",
+        "guaranteed_meetings": 12,
+        "deliverables": [
+            "1,500 Targeted Decision-Maker Touches per month in Target Industry",
+            "Custom Cold Outreach Copywriting & A/B Angle Testing",
+            "Direct Multi-Channel WhatsApp Concierge Outreach",
+            "Live CRM Pipeline Tracking & Dedicated Account Manager"
+        ],
+        "payment_terms": "100% Advance Monthly Invoicing with 7-Day Net Settlement",
+        "status": "Draft",
+        "created_at": "2026-10-16",
+        "valid_until": "2026-10-30"
+    },
+    {
+        "id": "prop_sterling_1",
+        "lead_id": "prop-sterling",
+        "client_name": "STERLING MANUFACTURING COMPANY",
+        "contact_person": "Mr. Rajesh Sharma (Managing Director)",
+        "email": "customercare@sterlingmfgco.com",
+        "package_name": "Executive Working Capital & CMA Retainer",
+        "monthly_fee": 45000,
+        "currency": "\u20b9",
+        "guaranteed_meetings": 12,
+        "deliverables": [
+            "1,200 Verified CFO & Promoter Outreach Touches / Month",
+            "Custom Working Capital Liquidity Diagnostic Audit",
+            "Dedicated WhatsApp AI Concierge with Instant Notification",
+            "Bi-Weekly Executive Strategy & Conversion Pipeline Reviews"
+        ],
+        "payment_terms": "Advance Monthly Invoicing with 7-Day Net Settlement",
+        "status": "Sent",
+        "created_at": "2026-10-14",
+        "valid_until": "2026-10-28"
+    }
+]
